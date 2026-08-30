@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Motionblend — Visual production studio crafting cinematic content that connects, engages, and moves your audience.">
+<title>Motionblend — Stories that move.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#000;
+  --text:#fff;
+  --muted:#777;
+  --border:#222;
+  --font-display:'Fraunces',Georgia,serif;
+  --font-body:'Inter',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-body);
+  color:var(--text);
+  background:var(--bg);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+::selection{background:#fff;color:#000}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.skip-link{
+  position:absolute;top:-100%;left:16px;z-index:200;
+  padding:12px 24px;background:var(--text);color:var(--bg);
+  font-size:14px;font-weight:600;text-decoration:none;
+  transition:top .2s;
+}
+.skip-link:focus{top:16px}
+
+/* film grain — the signature */
+.grain{
+  position:fixed;inset:0;z-index:9999;pointer-events:none;
+  opacity:.045;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:128px 128px;
+  animation:grainShift .4s steps(3) infinite;
+  will-change:transform;
+}
+@keyframes grainShift{
+  0%{transform:translate(0)}
+  33%{transform:translate(-2px,1px)}
+  66%{transform:translate(1px,-1px)}
+  100%{transform:translate(0)}
+}
+
+/* ---------- HEADER ---------- */
+.header{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:22px clamp(24px,5vw,60px);
+  transition:background .4s,backdrop-filter .4s;
+}
+.header.scrolled{
+  background:rgba(0,0,0,.92);
+  backdrop-filter:blur(12px);
+}
+.logo{
+  font-family:var(--font-display);font-size:20px;font-weight:700;
+  letter-spacing:-.02em;color:var(--text);text-decoration:none;
+}
+.logo em{font-style:normal;font-weight:300;opacity:.5}
+.nav{display:flex;align-items:center;gap:32px}
+.nav a{
+  color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;
+  letter-spacing:.04em;text-transform:uppercase;
+  transition:color .25s;
+}
+.nav a:hover,.nav a:focus-visible,.nav a.active{color:var(--text)}
+.burger{
+  display:none;flex-direction:column;gap:5px;
+  background:none;border:0;cursor:pointer;padding:4px;
+}
+.burger span{display:block;width:22px;height:1.5px;background:var(--text);transition:.3s;will-change:transform}
+.burger.open span:nth-child(1){transform:rotate(45deg) translate(4px,4px)}
+.burger.open span:nth-child(2){opacity:0}
+.burger.open span:nth-child(3){transform:rotate(-45deg) translate(4px,-4px)}
+
+/* mobile drawer */
+.drawer{
+  position:fixed;inset:0;z-index:90;
+  background:rgba(0,0,0,.97);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:36px;
+  opacity:0;pointer-events:none;transition:opacity .35s;
+}
+.drawer.open{opacity:1;pointer-events:auto}
+.drawer a{
+  color:var(--text);text-decoration:none;
+  font-family:var(--font-display);font-size:32px;font-weight:500;
+  transition:opacity .25s;
+}
+.drawer a:hover,.drawer a:focus-visible{opacity:.5}
+
+/* ---------- HERO ---------- */
+.hero{
+  position:relative;min-height:100vh;
+  display:flex;flex-direction:column;
+  justify-content:center;
+  padding:0 clamp(24px,5vw,60px);
+  overflow:hidden;
+}
+.hero-bg{
+  position:absolute;inset:0;z-index:0;
+  background:url('https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=1280&q=80') center/cover;
+  filter:grayscale(1) brightness(.5);
+  will-change:filter;
+}
+.hero-bg::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(0,0,0,.2) 0%,rgba(0,0,0,.55) 60%,var(--bg) 100%);
+}
+
+/* hero flash — the signature moment */
+.hero-flash{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+}
+.hero-flash::before{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(ellipse at 30% 50%,rgba(255,255,255,.18) 0%,transparent 60%);
+  opacity:0;
+  animation:flash 2s .3s ease-out forwards;
+  will-change:opacity,transform;
+}
+
+/* viewfinder frame — camera overlay on logo */
+.logo-wrap{
+  position:relative;
+  padding:6px 10px 6px 6px;
+}
+.vf-corner{
+  position:absolute;width:10px;height:10px;
+}
+.vf-corner::before,.vf-corner::after{
+  content:"";position:absolute;background:rgba(255,255,255,.5);
+}
+.vf-corner::before{width:100%;height:1.5px}
+.vf-corner::after{width:1.5px;height:100%}
+
+.vf-tl{top:0;left:0}
+.vf-tl::before{top:0;left:0}
+.vf-tl::after{top:0;left:0}
+
+.vf-tr{top:0;right:0}
+.vf-tr::before{top:0;right:0}
+.vf-tr::after{top:0;right:0}
+.vf-tr::before,.vf-tr::after{background:#e02020}
+
+.vf-bl{bottom:0;left:0}
+.vf-bl::before{bottom:0;left:0}
+.vf-bl::after{bottom:0;left:0}
+
+.vf-br{bottom:0;right:0}
+.vf-br::before{bottom:0;right:0}
+.vf-br::after{bottom:0;right:0}
+@keyframes flash{
+  0%{opacity:0;transform:scale(.9)}
+  15%{opacity:1;transform:scale(1)}
+  100%{opacity:0;transform:scale(1.1)}
+}
+
+.hero-inner{
+  position:absolute;bottom:0;right:0;z-index:2;
+  padding:0 clamp(24px,5vw,60px) clamp(16px,2vh,28px);
+}
+.hero-center{
+  position:absolute;inset:0;z-index:2;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  pointer-events:none;
+}
+.hero-center-text{
+  font-family:var(--font-display);font-weight:700;
+  font-size:clamp(48px,9vw,130px);line-height:.9;letter-spacing:-.04em;
+  background:url('public/img/gallery/portrait/c1-mountain-covered.jpeg') center/cover no-repeat;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  filter:brightness(1.1) contrast(1.1);
+  text-align:center;
+  opacity:0;animation:centerReveal 1.2s .4s cubic-bezier(.22,1,.36,1) forwards;
+  will-change:opacity,filter;
+}
+.hero-center-sub{
+  font-family:var(--font-mono);font-size:12px;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--muted);margin-top:16px;
+  opacity:0;animation:centerReveal 1s .8s cubic-bezier(.22,1,.36,1) forwards;
+}
+@keyframes centerReveal{
+  from{opacity:0;filter:blur(4px)}
+  to{opacity:1;filter:blur(0)}
+}
+.hero-side{
+  display:flex;flex-direction:column;align-items:flex-end;gap:20px;
+  opacity:0;animation:fadeUp .8s 1.5s ease forwards;
+}
+.hero-stat{text-align:right}
+.hero-stat-val{
+  font-family:var(--font-mono);font-size:clamp(28px,3vw,40px);
+  font-weight:400;letter-spacing:-.02em;line-height:1;color:var(--text);
+}
+.hero-stat-label{
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--muted);margin-top:4px;
+}
+.hero-reel{
+  display:flex;align-items:center;gap:8px;
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);
+  opacity:0;animation:fadeUp .8s 1.8s ease forwards;
+}
+.hero-reel-dot{
+  width:6px;height:6px;border-radius:50%;background:#e02020;
+  animation:pulse 2s 2s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:1}50%{opacity:.3}
+}
+
+/* bottom brand text with image fill */
+.hero-brand{
+  position:absolute;bottom:0;left:0;right:0;z-index:3;
+  padding:0 clamp(24px,5vw,60px) clamp(16px,2vh,28px);
+  overflow:hidden;
+}
+.hero-brand-text{
+  font-family:var(--font-display);font-weight:700;
+  font-size:clamp(80px,18vw,260px);line-height:.85;letter-spacing:-.04em;
+  background:url('public/img/gallery/landscape/c3-people-camera.png') center/cover no-repeat;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  opacity:0;
+  animation:brandReveal 1s .6s cubic-bezier(.22,1,.36,1) forwards;
+  will-change:opacity,transform,filter;
+}
+@keyframes brandReveal{
+  from{opacity:0;transform:translateY(20px);filter:blur(4px)}
+  to{opacity:1;transform:translateY(0);filter:blur(0)}
+}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(24px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ---------- SECTIONS ---------- */
+.section{padding:clamp(80px,10vh,140px) clamp(24px,5vw,60px)}
+.section-label{
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:16px;
+}
+.section-rule{
+  width:40px;height:1px;background:var(--border);margin-bottom:40px;
+}
+
+/* ---------- ABOUT ---------- */
+.about-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,6vw,100px);
+  align-items:start;
+}
+.about-statement{
+  font-family:var(--font-display);font-size:clamp(28px,3.5vw,44px);
+  font-weight:500;line-height:1.25;letter-spacing:-.02em;
+}
+.about-statement em{font-style:italic;font-weight:300;opacity:.5}
+.about-body{padding-top:8px}
+.about-body p{color:var(--muted);font-size:16px;line-height:1.8;margin-bottom:20px}
+.about-body p:last-child{margin-bottom:0}
+.about-highlight{color:var(--text);font-weight:500}
+
+/* ---------- SERVICES ---------- */
+.services-layout{
+  display:grid;grid-template-columns:1fr 1.5fr;gap:clamp(40px,6vw,100px);
+  align-items:start;
+}
+.services-intro p{color:var(--muted);font-size:16px;line-height:1.8;max-width:360px}
+.services-list{display:flex;flex-direction:column}
+.service-item{
+  display:grid;grid-template-columns:1fr;gap:8px;
+  padding:28px 0;
+  border-bottom:1px solid var(--border);
+}
+.service-item:first-child{padding-top:0}
+.service-item:last-child{border-bottom:none}
+.service-head{display:flex;align-items:baseline;gap:16px}
+.service-name{
+  font-family:var(--font-display);font-size:clamp(20px,2.2vw,28px);
+  font-weight:500;letter-spacing:-.01em;
+}
+.service-icon{color:var(--muted);font-size:16px;flex-shrink:0}
+.service-desc{color:var(--muted);font-size:15px;line-height:1.6;padding-left:34px}
+
+/* ---------- PARALLAX GALLERY ---------- */
+.parallax-gallery{
+  position:relative;height:175vh;
+  display:flex;gap:2vw;
+  background:var(--bg);padding:2vw;
+  overflow:hidden;
+}
+.parallax-col{
+  position:relative;display:flex;flex-direction:column;gap:1.5vw;
+  width:calc(25% - 1.5vw);min-width:200px;
+  will-change:transform;
+}
+.parallax-col:nth-child(1){top:-40vh}
+.parallax-col:nth-child(2){top:-10vh}
+.parallax-col:nth-child(3){top:0}
+.parallax-col:nth-child(4){top:-40vh}
+.parallax-img{
+  position:relative;width:100%;flex-shrink:0;
+  overflow:hidden;
+}
+.parallax-img img{
+  width:100%;height:auto;object-fit:cover;
+  display:block;
+}
+.parallax-hint{
+  position:relative;z-index:2;
+  display:flex;align-items:center;justify-content:center;
+  height:100vh;
+}
+.parallax-hint span{
+  font-family:var(--font-mono);font-size:12px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--muted);
+  position:relative;
+}
+.parallax-hint span::after{
+  content:"";position:absolute;left:50%;top:100%;
+  width:1px;height:64px;
+  background:linear-gradient(to bottom,var(--text),transparent);
+}
+
+/* ---------- VIEW ALL ---------- */
+.view-all-wrap{
+  display:flex;justify-content:center;
+  padding:clamp(60px,8vh,100px) 24px;
+}
+.view-all{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:16px 44px;
+  border:1px solid var(--border);color:var(--text);
+  font-family:var(--font-body);font-size:14px;font-weight:600;
+  letter-spacing:.04em;text-transform:uppercase;text-decoration:none;
+  transition:border-color .25s,background .25s;
+}
+.view-all:hover,.view-all:focus-visible{border-color:var(--text);background:var(--text);color:var(--bg)}
+.view-all:focus-visible{outline:2px solid var(--text);outline-offset:3px}
+
+/* ---------- CONTACT ---------- */
+.contact-layout{
+  display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,6vw,100px);
+  align-items:start;
+}
+.contact-heading{
+  font-family:var(--font-display);font-size:clamp(32px,4.5vw,56px);
+  font-weight:700;line-height:1.15;letter-spacing:-.03em;
+}
+.contact-heading em{font-style:italic;font-weight:300;opacity:.5}
+.contact-sub{color:var(--muted);font-size:16px;line-height:1.7;margin-top:20px;max-width:380px}
+.contact-form{display:flex;flex-direction:column;gap:24px;padding-top:8px}
+.form-group{position:relative}
+.form-group input,.form-group textarea{
+  width:100%;padding:16px 0 8px;
+  background:transparent;border:none;border-bottom:1px solid var(--border);
+  color:var(--text);font-family:var(--font-body);font-size:16px;
+  outline:none;transition:border-color .3s;
+}
+.form-group textarea{resize:vertical;min-height:100px}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--text)}
+.form-group input:focus-visible,.form-group textarea:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+.form-group label{
+  position:absolute;left:0;top:16px;
+  color:var(--muted);font-size:15px;pointer-events:none;
+  transition:all .25s cubic-bezier(.22,1,.36,1);
+}
+.form-group input:focus+label,
+.form-group input:not(:placeholder-shown)+label,
+.form-group textarea:focus+label,
+.form-group textarea:not(:placeholder-shown)+label{
+  top:-4px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--text);
+}
+.form-submit{
+  align-self:flex-start;margin-top:8px;
+  padding:16px 44px;
+  background:var(--text);color:var(--bg);
+  font-family:var(--font-body);font-size:14px;font-weight:600;
+  letter-spacing:.04em;text-transform:uppercase;
+  border:0;cursor:pointer;
+  transition:opacity .25s;
+}
+.form-submit:hover,.form-submit:focus-visible{opacity:.8}
+.form-submit:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+
+/* ---------- FOOTER ---------- */
+.footer{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:40px clamp(24px,5vw,60px);
+  border-top:1px solid var(--border);
+}
+.footer-brand{
+  font-family:var(--font-display);font-size:16px;font-weight:700;
+  letter-spacing:-.02em;color:var(--text);
+}
+.footer-brand em{font-style:normal;font-weight:300;opacity:.5}
+.footer-links{display:flex;gap:28px}
+.footer-links a{
+  color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;
+  letter-spacing:.04em;text-transform:uppercase;
+  transition:color .25s;
+}
+.footer-links a:hover,.footer-links a:focus-visible{color:var(--text)}
+
+/* ---------- SCROLL REVEAL ---------- */
+.reveal{opacity:0;transform:translateY(32px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ---------- RESPONSIVE ---------- */
+@media(max-width:900px){
+  .about-grid,.services-layout,.contact-layout{grid-template-columns:1fr;gap:40px}
+  .parallax-gallery{flex-direction:column;height:auto;gap:4vw}
+  .parallax-col{width:100%;top:0!important;height:auto}
+  .parallax-img img{aspect-ratio:auto}
+  .service-desc{padding-left:0}
+}
+@media(max-width:720px){
+  .nav{display:none}
+  .burger{display:flex}
+  .hero{padding-bottom:0}
+  .hero-inner{padding:0 16px 12px}
+  .hero h1{font-size:clamp(36px,10vw,56px)}
+  .hero-brand{padding:0 16px 12px}
+  .hero-brand-text{font-size:clamp(72px,20vw,160px)}
+  .parallax-gallery{padding:4vw}
+  .footer{flex-direction:column;gap:20px;text-align:center}
+  .footer-links{flex-wrap:wrap;justify-content:center}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  .reveal{opacity:1;transform:none}
+  .grain{animation:none}
+  .hero-bg,.hero-brand-text{will-change:auto}
+  .parallax-col{transform:none!important}
+}
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+<div class="grain" aria-hidden="true"></div>
+
+<!-- HEADER -->
+<header class="header" id="header">
+  <a href="#" class="logo"><span class="logo-wrap">motion<em>blend</em><div class="vf-corner vf-tl"></div><div class="vf-corner vf-tr"></div><div class="vf-corner vf-bl"></div><div class="vf-corner vf-br"></div></span></a>
+  <nav class="nav" aria-label="Main">
+    <a href="#about">About</a>
+    <a href="#services">Services</a>
+    <a href="projects.html">Work</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <button class="burger" id="burger" aria-label="Toggle menu" aria-expanded="false" aria-controls="drawer">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<!-- MOBILE DRAWER -->
+<div class="drawer" id="drawer" role="dialog" aria-label="Navigation">
+  <a href="#about">About</a>
+  <a href="#services">Services</a>
+  <a href="projects.html">Work</a>
+  <a href="#contact">Contact</a>
+</div>
+
+<!-- MAIN -->
+<main id="main">
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg" role="img" aria-label="Cinematic camera setup"></div>
+  <div class="hero-flash" aria-hidden="true"></div>
+  <div class="hero-center">
+    <div class="hero-center-text">motionblend</div>
+    <div class="hero-center-sub">Visual production studio</div>
+  </div>
+  <div class="hero-inner">
+    <div class="hero-side">
+      <div class="hero-stat">
+        <div class="hero-stat-val">200<span style="opacity:.4">+</span></div>
+        <div class="hero-stat-label">Projects delivered</div>
+      </div>
+      <div class="hero-reel">
+        <span class="hero-reel-dot" aria-hidden="true"></span>
+        Now accepting bookings
+      </div>
+    </div>
+  </div>
+  <!-- <div class="hero-brand" aria-hidden="true">
+    <div class="hero-brand-text">motion<br>blend</div>
+  </div> -->
+</section>
+
+<!-- ABOUT -->
+<section class="section" id="about">
+  <div class="reveal">
+    <div class="section-label">Visual production studio</div>
+    <div class="section-rule"></div>
+  </div>
+  <div class="about-grid">
+    <div class="about-statement reveal">
+      Stories that <em>move.</em>
+    </div>
+    <div class="about-body reveal">
+      <p>We craft cinematic content that connects, engages, and moves your audience. Because your brand deserves more than attention — it deserves impact.</p>
+      <p>Every frame, every cut, every sound is designed to make your audience <span class="about-highlight">feel something real.</span> In a world drowning in content, we create the kind that people actually remember.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="section" id="services">
+  <div class="reveal">
+    <div class="section-label">What we make</div>
+    <div class="section-rule"></div>
+  </div>
+  <div class="services-layout">
+    <div class="services-intro reveal">
+      <p>Full-spectrum visual production. From the first frame to the final grade, we handle every step of the process.</p>
+    </div>
+    <div class="services-list">
+      <div class="service-item reveal">
+        <div class="service-head">
+          <span class="service-icon" aria-hidden="true">→</span>
+          <span class="service-name">Cinematic ads</span>
+        </div>
+        <p class="service-desc">Story-first commercials that stop the scroll and hold attention.</p>
+      </div>
+      <div class="service-item reveal">
+        <div class="service-head">
+          <span class="service-icon" aria-hidden="true">→</span>
+          <span class="service-name">Product shoots</span>
+        </div>
+        <p class="service-desc">High-end visuals that make your products irresistible.</p>
+      </div>
+      <div class="service-item reveal">
+        <div class="service-head">
+          <span class="service-icon" aria-hidden="true">→</span>
+          <span class="service-name">Reels &amp; shorts</span>
+        </div>
+        <p class="service-desc">Fast, sharp content built for the feed and made to share.</p>
+      </div>
+      <div class="service-item reveal">
+        <div class="service-head">
+          <span class="service-icon" aria-hidden="true">→</span>
+          <span class="service-name">Post production</span>
+        </div>
+        <p class="service-desc">Editing, colour grading, and sound design — the invisible craft that makes everything sing.</p>
+      </div>
+      <div class="service-item reveal">
+        <div class="service-head">
+          <span class="service-icon" aria-hidden="true">→</span>
+          <span class="service-name">Aerial coverage</span>
+        </div>
+        <p class="service-desc">Drone cinematography that brings scale, drama, and a fresh perspective.</p>
+      </div>
+      <div class="service-item reveal">
+        <div class="service-head">
+          <span class="service-icon" aria-hidden="true">→</span>
+          <span class="service-name">Brand strategy</span>
+        </div>
+        <p class="service-desc">Concept, script, and creative direction — the story before the story.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PARALLAX GALLERY -->
+<section class="parallax-gallery" id="work">
+  <div class="parallax-col" data-speed="2" data-direction="up">
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c1-596938125655392271.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/landscape/c1-landscape-1.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c1-mountain-covered.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c1-relax.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c1-favorite-story.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c1-photography.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c1-aesthetic.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c1-11118330333670689.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c1-project-10836855347671114.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+  </div>
+  <div class="parallax-col" data-speed="2" data-direction="up">
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c2-golden-hour-boardwalk.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/landscape/c2-mountain-covered-1.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c2-beauty-art.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c2-project-wallpaper.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c2-213709944813838825.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c2-sunshine.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c2-239113061442206496.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c2-project-photos.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c2-paren.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+  </div>
+  <div class="parallax-col" data-speed="1.4" data-direction="up">
+    <div class="parallax-img"><img src="public/img/gallery/landscape/c3-landscape-2.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/landscape/c3-people-camera.png" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c3-1829656093067869.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c3-tuscan-towns.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c3-57983913948682575.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c3-281543722944652.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c3-project-76209418690646752.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c3-5911043262431856.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c3-planet.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+  </div>
+  <div class="parallax-col" data-speed="2.4" data-direction="up">
+    <div class="parallax-img"><img src="public/img/gallery/landscape/c4-people-camera-1.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c4-old-city.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c4-44684221303963429.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c4-life-before-internet.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c4-money.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/landscape/c4-people-camera-2.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c4-project-1759287346772435.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+    <div class="parallax-img"><img src="public/img/gallery/portrait/c4-winter-wallpapers.jpeg" alt="Photo" loading="lazy" decoding="async"></div>
+  </div>
+</section>
+
+<div class="view-all-wrap">
+  <a href="projects.html" class="view-all">View all projects</a>
+</div>
+
+<!-- CONTACT -->
+<section class="section" id="contact">
+  <div class="reveal">
+    <div class="section-label">Get in touch</div>
+    <div class="section-rule"></div>
+  </div>
+  <div class="contact-layout">
+    <div class="reveal">
+      <h2 class="contact-heading">Let's start a <em>conversation.</em></h2>
+      <p class="contact-sub">Tell us about your project. We'll get back to you within 24 hours with next steps.</p>
+    </div>
+    <form class="contact-form reveal" onsubmit="return false">
+      <div class="form-group">
+        <input type="text" id="name" name="name" placeholder=" " required autocomplete="name">
+        <label for="name">Your name</label>
+      </div>
+      <div class="form-group">
+        <input type="email" id="email" name="email" placeholder=" " required autocomplete="email">
+        <label for="email">Email address</label>
+      </div>
+      <div class="form-group">
+        <input type="text" id="project" name="project" placeholder=" " autocomplete="off">
+        <label for="project">Project type</label>
+      </div>
+      <div class="form-group">
+        <textarea id="message" name="message" placeholder=" " rows="4"></textarea>
+        <label for="message">Tell us about your project</label>
+      </div>
+      <button type="submit" class="form-submit">Send message</button>
+    </form>
+  </div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-brand">motion<em>blend</em></div>
+  <div class="footer-links">
+    <a href="#">Instagram</a>
+    <a href="#">Vimeo</a>
+    <a href="#">TikTok</a>
+    <a href="mailto:hello@motionblend.studio">Email</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // ——— single scroll handler (was 3 separate listeners) ———
+  var header=document.getElementById('header');
+  var sections=document.querySelectorAll('.section,.hero');
+  var navLinks=document.querySelectorAll('.nav a');
+  var ticking=false;
+
+  // ——— parallax gallery ———
+  var parallaxCols=document.querySelectorAll('.parallax-col');
+  var parallaxGallery=document.querySelector('.parallax-gallery');
+  var parallaxBase=window.innerHeight;
+
+  function updateParallax(){
+    if(!parallaxGallery||!parallaxCols.length)return;
+    var rect=parallaxGallery.getBoundingClientRect();
+    var viewH=window.innerHeight;
+    var scrollProgress=(viewH-rect.top)/(rect.height+viewH);
+    scrollProgress=Math.max(0,Math.min(1,scrollProgress));
+
+    for(var p=0;p<parallaxCols.length;p++){
+      var col=parallaxCols[p];
+      var speed=parseFloat(col.getAttribute('data-speed'))||1;
+      var dir=col.getAttribute('data-direction');
+      var sign=dir==='down'?1:-1;
+      var travel=parallaxBase*0.42*speed;
+      var yOffset=sign*(scrollProgress*travel);
+      col.style.transform='translate3d(0,'+yOffset+'px,0)';
+    }
+  }
+
+  function onParallaxResize(){
+    parallaxBase=window.innerHeight;
+  }
+  window.addEventListener('resize',onParallaxResize);
+
+  function onScroll(){
+    if(ticking)return;
+    ticking=true;
+    requestAnimationFrame(function(){
+      header.classList.toggle('scrolled',window.scrollY>60);
+
+      var current='';
+      for(var i=0;i<sections.length;i++){
+        if(window.scrollY>=sections[i].offsetTop-200)current=sections[i].id;
+      }
+      for(var j=0;j<navLinks.length;j++){
+        navLinks[j].classList.toggle('active',navLinks[j].getAttribute('href')==='#'+current);
+      }
+
+      updateParallax();
+      ticking=false;
+    });
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});
+  onScroll();
+
+  // ——— mobile drawer ———
+  var burger=document.getElementById('burger');
+  var drawer=document.getElementById('drawer');
+  var drawerLinks=drawer.querySelectorAll('a');
+
+  burger.addEventListener('click',function(){
+    var open=burger.classList.toggle('open');
+    drawer.classList.toggle('open');
+    burger.setAttribute('aria-expanded',open);
+    document.body.style.overflow=open?'hidden':'';
+  });
+
+  for(var k=0;k<drawerLinks.length;k++){
+    drawerLinks[k].addEventListener('click',function(){
+      burger.classList.remove('open');
+      drawer.classList.remove('open');
+      burger.setAttribute('aria-expanded','false');
+      document.body.style.overflow='';
+    });
+  }
+
+  // ——— scroll reveal (one observer for all) ———
+  var reveals=document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    var revealObs=new IntersectionObserver(function(entries){
+      for(var i=0;i<entries.length;i++){
+        if(entries[i].isIntersecting){
+          entries[i].target.classList.add('visible');
+          revealObs.unobserve(entries[i].target);
+        }
+      }
+    },{threshold:0.15,rootMargin:'0px 0px -40px 0px'});
+    for(var m=0;m<reveals.length;m++)revealObs.observe(reveals[m]);
+  }else{
+    for(var n=0;n<reveals.length;n++)reveals[n].classList.add('visible');
+  }
+})();
+</script>
+</body>
+</html>
